@@ -244,7 +244,7 @@ st.caption(
 
 
 # =========================================================
-# [9. 여섯 번째 그래프: 캘린더 히트맵 (월/주차별 × 요일별)]
+# [9. 여섯 번째 그래프: 캘린더 히트맵 (축 반전: X=월/주차, Y=요일)]
 # =========================================================
 st.markdown("---")
 st.header("🗓️ 섹션 6: 월(주차별) × 요일별 관객수 캘린더 히트맵")
@@ -257,29 +257,29 @@ daily_total["요일"] = daily_total["요일_num"].map(lambda x: day_names[x])
 # 마우스 호버 시 띄울 날짜 문자열(YYYY-MM-DD)
 daily_total["날짜_str"] = daily_total["기준일자"].dt.strftime("%Y-%m-%d")
 
-# Y축에 들어갈 '월(주차별)' 라벨 생성 (예: '2023-05 (18주차)')
+# X축에 들어갈 '월(주차별)' 라벨 생성 (예: '2023-05 (18주차)')
 daily_total["월_주차"] = daily_total["기준일자"].dt.strftime("%Y-%m (%W주차)")
 
-# 2) 관객수 데이터 피벗 테이블 생성 (행: 월_주차, 열: 요일)
+# 2) 관객수 데이터 피벗 테이블 생성 (행: 요일, 열: 월_주차)
 pivot_audience = daily_total.pivot(
-    index="월_주차", columns="요일", values="해당일관객수"
+    index="요일", columns="월_주차", values="해당일관객수"
 )
-pivot_audience = pivot_audience.reindex(columns=day_names)  # 월요일 ~ 일요일 순서 고정
+pivot_audience = pivot_audience.reindex(index=day_names)  # Y축: 월요일 ~ 일요일 순서 고정
 
 # 3) 마우스 호버 시 보여줄 날짜 데이터 피벗 테이블 생성
 pivot_dates = daily_total.pivot(
-    index="월_주차", columns="요일", values="날짜_str"
+    index="요일", columns="월_주차", values="날짜_str"
 )
-pivot_dates = pivot_dates.reindex(columns=day_names)
+pivot_dates = pivot_dates.reindex(index=day_names)
 
-# 4) Plotly go.Heatmap 생성
+# 4) Plotly go.Heatmap 생성 (X축 = 월_주차, Y축 = 요일)
 fig_heatmap = go.Figure(
     data=go.Heatmap(
         z=pivot_audience.values,
         x=pivot_audience.columns,
         y=pivot_audience.index,
         text=pivot_dates.values,
-        hovertemplate="<b>날짜: %{text}</b><br>요일: %{x}요일<br>일관객수 합계: %{z:,.0f}명<extra></extra>",
+        hovertemplate="<b>날짜: %{text}</b><br>월/주차: %{x}<br>요일: %{y}요일<br>일관객수 합계: %{z:,.0f}명<extra></extra>",
         colorscale="Reds",  # 색상이 진할수록 관객수가 많음
     )
 )
@@ -287,9 +287,9 @@ fig_heatmap = go.Figure(
 # 히트맵 레이아웃 설정
 fig_heatmap.update_layout(
     title="월(주차별) × 요일별 박스오피스 관객수 분포",
-    xaxis_title="요일 (월요일~일요일)",
-    yaxis_title="월 (주차)",
-    yaxis=dict(autorange="reversed"),  # 시간이 과거에서 최근 순으로 내려오도록 정렬
+    xaxis_title="월 (주차)",
+    yaxis_title="요일 (월요일~일요일)",
+    yaxis=dict(autorange="reversed"),  # 위에서 아래로 월요일 -> 일요일 순 정렬
 )
 
 # 그래프 출력
