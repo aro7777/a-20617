@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 # 페이지 기본 설정
@@ -109,7 +110,7 @@ st.caption(
 st.markdown("---")
 st.header("🏆 섹션 3: 20일 이상 TOP 10 유지 영화 중 누적 관객수 TOP 5 비교")
 
-# 1) 영화별 TOP 10 등장 일수(데이터 발생 수) 계산
+# 1) 영화별 TOP 10 등장 일수 계산
 movie_days = df.groupby("영화명")["기준일자"].count()
 
 # 2) 등장 일수가 20일 이상인 영화 목록만 필터링
@@ -148,4 +149,60 @@ st.plotly_chart(fig_multi, use_container_width=True)
 # 그래프 하단 설명 란
 st.caption(
     "💡 **이 그래프로 알 수 있는 것:** 단기 반짝 흥행에 그치지 않고 박스오피스 TOP 10에 20일 이상 차트인한 주요 장기 흥행작 5편의 누적 관객수 증가 속도와 최종 성적 차이를 비교해 볼 수 있습니다."
+)
+
+
+# =========================================================
+# [7. 네 번째 그래프: 이동평균선 (전체 박스오피스 7일 이동평균)]
+# =========================================================
+st.markdown("---")
+st.header("📉 섹션 4: 박스오피스 전체 일별 관객수 및 7일 이동평균 추이")
+
+# 1) 기준일자별 TOP 10 영화 전체의 해당일관객수 합계 계산
+daily_total = df.groupby("기준일자")["해당일관객수"].sum().reset_index()
+
+# 2) 7일 이동평균(Rolling Mean) 계산
+daily_total["7일이동평균"] = (
+    daily_total["해당일관객수"].rolling(window=7, min_periods=1).mean()
+)
+
+# 3) Plotly graph_objects를 활용하여 연한 원본 선과 진한 이동평균 선을 겹쳐서 그리기
+fig_ma = go.Figure()
+
+# 원본 일별 관객수 합계 (연하고 얇은 선)
+fig_ma.add_trace(
+    go.Scatter(
+        x=daily_total["기준일자"],
+        y=daily_total["해당일관객수"],
+        mode="lines",
+        name="일별 관객수 합계 (원본)",
+        line=dict(color="rgba(180, 180, 180, 0.6)", width=1.5),
+    )
+)
+
+# 7일 이동평균선 (진하고 두꺼운 선)
+fig_ma.add_trace(
+    go.Scatter(
+        x=daily_total["기준일자"],
+        y=daily_total["7일이동평균"],
+        mode="lines",
+        name="7일 이동평균",
+        line=dict(color="#1f77b4", width=3),
+    )
+)
+
+# 레이아웃 설정
+fig_ma.update_layout(
+    title="박스오피스 TOP 10 전체 일별 관객수 합계 및 7일 이동평균",
+    xaxis_title="날짜",
+    yaxis_title="관객수(명)",
+    hovermode="x unified",
+)
+
+# 그래프 출력
+st.plotly_chart(fig_ma, use_container_width=True)
+
+# 그래프 하단 설명 란
+st.caption(
+    "💡 **이 그래프로 알 수 있는 것:** 주말/평일 간 관객수 변동(일별 노이즈)을 평탄화하여, 전체 극장가 관객 흐름의 대세 상승·하강 국면과 성수기/비성수기 트렌드를 명확하게 파악할 수 있습니다."
 )
