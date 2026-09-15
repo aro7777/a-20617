@@ -300,6 +300,7 @@ st.caption(
     "💡 **이 그래프로 알 수 있는 것:** 주차별·요일별 관객 밀도를 색상의 짙은 정도(진할수록 관객 집중)로 확인하여, 주말 집중도와 특수 공휴일/연휴 시점의 극장가 관객 폭발 구간을 달력 형태로 파악할 수 있습니다."
 )
 
+#///////////////////////////////////////////////////////////////////////////////////////
 st.set_page_config(page_title="영화 데이터 그래프 도감 2 - 분포와 관계", layout="wide")
 
 st.title("🎬 영화 데이터 그래프 도감 2 - 분포와 관계")
@@ -342,10 +343,35 @@ fig_donut.update_traces(
 
 st.plotly_chart(fig_donut, use_container_width=True)
 
-# 그래프 설명 및 구분 구역
 st.subheader("💡 이 그래프로 알 수 있는 것")
 st.write(
     "전체 개봉 영화 중 어떤 장르가 가장 높은 비중을 차지하는지 한눈에 비교할 수 있으며, 주류 장르와 비주류 장르의 분포 편차를 파악할 수 있습니다."
+)
+
+st.divider()
+
+# ---------------------------------------------------------
+# Section 2: 장르 및 개별 영화별 총 관객 수 (트리맵)
+# ---------------------------------------------------------
+st.header("2. 장르 및 개별 영화별 총 관객 수 분포")
+
+fig_treemap = px.treemap(
+    df,
+    path=[px.Constant("전체 장르"), "genre", "movieNm"],
+    values="total_audi",
+    title="장르 및 개별 영화별 총 관객 수",
+)
+
+# 마우스 오버 시 이름(영화명/장르명)과 총 관객 수 표시 (천 단위 쉼표 적용)
+fig_treemap.update_traces(
+    hovertemplate="<b>%{label}</b><br>총 관객 수: %{value:,.0f}명<extra></extra>"
+)
+
+st.plotly_chart(fig_treemap, use_container_width=True)
+
+st.subheader("💡 이 그래프로 알 수 있는 것")
+st.write(
+    "장르별 전체 관객 규모의 비중과 함께, 각 장르 내부에서 어떤 개별 영화가 흥행을 주도했는지 상대적 크기로 한눈에 파악할 수 있습니다."
 )
 
 st.divider()
