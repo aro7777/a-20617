@@ -301,6 +301,7 @@ st.caption(
 )
 
 #///////////////////////////////////////////////////////////////////////////////////////
+
 st.set_page_config(page_title="영화 데이터 그래프 도감 2 - 분포와 관계", layout="wide")
 
 st.title("🎬 영화 데이터 그래프 도감 2 - 분포와 관계")
@@ -335,7 +336,6 @@ fig_donut = px.pie(
     title="장르별 개봉 영화 비율 및 편수",
 )
 
-# 마우스 오버(호버) 시 편수와 비율 명시
 fig_donut.update_traces(
     textinfo="percent+label",
     hovertemplate="<b>장르: %{label}</b><br>영화 수: %{value}편<br>비율: %{percent}<extra></extra>",
@@ -362,7 +362,6 @@ fig_treemap = px.treemap(
     title="장르 및 개별 영화별 총 관객 수",
 )
 
-# 마우스 오버 시 이름(영화명/장르명)과 총 관객 수 표시 (천 단위 쉼표 적용)
 fig_treemap.update_traces(
     hovertemplate="<b>%{label}</b><br>총 관객 수: %{value:,.0f}명<extra></extra>"
 )
@@ -372,6 +371,41 @@ st.plotly_chart(fig_treemap, use_container_width=True)
 st.subheader("💡 이 그래프로 알 수 있는 것")
 st.write(
     "장르별 전체 관객 규모의 비중과 함께, 각 장르 내부에서 어떤 개별 영화가 흥행을 주도했는지 상대적 크기로 한눈에 파악할 수 있습니다."
+)
+
+st.divider()
+
+# ---------------------------------------------------------
+# Section 3: 총 관객 수 분포 (히스토그램)
+# ---------------------------------------------------------
+st.header("3. 총 관객 수 분포 (히스토그램)")
+
+fig_hist = px.histogram(
+    df,
+    x="total_audi",
+    nbins=20,
+    title="영화별 총 관객 수 히스토그램",
+    labels={"total_audi": "총 관객 수"},
+)
+
+fig_hist.update_traces(
+    hovertemplate="관객 수 구간: %{x}<br>영화 수: %{y}편<extra></extra>"
+)
+
+st.plotly_chart(fig_hist, use_container_width=True)
+
+# 최고 관객 수 영화 및 구간별 밀집 정보 계산
+max_movie = df.loc[df["total_audi"].idxmax()]
+max_movie_name = max_movie["movieNm"]
+max_movie_audi = max_movie["total_audi"]
+
+under_1m_count = (df["total_audi"] < 1000000).sum()
+under_1m_ratio = (under_1m_count / len(df)) * 100
+
+st.subheader("💡 이 그래프로 알 수 있는 것")
+st.write(
+    f"- **가장 관객이 많은 영화**: **{max_movie_name}** ({max_movie_audi:,.0f}명)\n"
+    f"- **밀집 구간**: 대부분의 영화가 **관객 수 100만 명 미만** 구간({under_1m_count}편, 약 {under_1m_ratio:.1f}%)에 집중되어 있으며, 수백만 명 이상의 흥행작은 극소수에 해당하는 비대칭적 분포를 보입니다."
 )
 
 st.divider()
