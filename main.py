@@ -299,3 +299,53 @@ st.plotly_chart(fig_heatmap, use_container_width=True)
 st.caption(
     "💡 **이 그래프로 알 수 있는 것:** 주차별·요일별 관객 밀도를 색상의 짙은 정도(진할수록 관객 집중)로 확인하여, 주말 집중도와 특수 공휴일/연휴 시점의 극장가 관객 폭발 구간을 달력 형태로 파악할 수 있습니다."
 )
+
+st.set_page_config(page_title="영화 데이터 그래프 도감 2 - 분포와 관계", layout="wide")
+
+st.title("🎬 영화 데이터 그래프 도감 2 - 분포와 관계")
+
+
+@st.cache_data
+def load_data():
+    url = "https://raw.githubusercontent.com/greatsong/modudata/main/data/kobis_movies.csv"
+    df = pd.read_csv(url)
+    # 세로막대 기호(|)로 여러 개 기재된 장르 중 첫 번째 장르만 추출
+    df["genre"] = (
+        df["genre"].astype(str).apply(lambda x: x.split("|")[0] if x else x)
+    )
+    return df
+
+
+df = load_data()
+
+# ---------------------------------------------------------
+# Section 1: 장르별 영화 편수 (플롯리 도넛 그래프)
+# ---------------------------------------------------------
+st.header("1. 장르별 영화 편수 분포")
+
+genre_counts = df["genre"].value_counts().reset_index()
+genre_counts.columns = ["genre", "count"]
+
+fig_donut = px.pie(
+    genre_counts,
+    values="count",
+    names="genre",
+    hole=0.4,
+    title="장르별 개봉 영화 비율 및 편수",
+)
+
+# 마우스 오버(호버) 시 편수와 비율 명시
+fig_donut.update_traces(
+    textinfo="percent+label",
+    hovertemplate="<b>장르: %{label}</b><br>영화 수: %{value}편<br>비율: %{percent}<extra></extra>",
+)
+
+st.plotly_chart(fig_donut, use_container_width=True)
+
+# 그래프 설명 및 구분 구역
+st.subheader("💡 이 그래프로 알 수 있는 것")
+st.write(
+    "전체 개봉 영화 중 어떤 장르가 가장 높은 비중을 차지하는지 한눈에 비교할 수 있으며, 주류 장르와 비주류 장르의 분포 편차를 파악할 수 있습니다."
+)
+
+st.divider()
