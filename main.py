@@ -302,6 +302,10 @@ st.caption(
 
 #///////////////////////////////////////////////////////////////////////////////////////
 
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
 st.set_page_config(page_title="영화 데이터 그래프 도감 2 - 분포와 관계", layout="wide")
 
 st.title("🎬 영화 데이터 그래프 도감 2 - 분포와 관계")
@@ -438,6 +442,41 @@ st.plotly_chart(fig_scatter, use_container_width=True)
 st.subheader("💡 이 그래프로 알 수 있는 것")
 st.write(
     "개봉일 스크린 수가 많을수록 총 관객 수 역시 증가하는 강한 양의 상관관계를 보이며, 장르별 초기 스크린 확보 규모와 흥행 실적의 차이를 비교할 수 있습니다."
+)
+
+st.divider()
+
+# ---------------------------------------------------------
+# Section 5: 장르별 총 관객 수 분포 (박스플롯)
+# ---------------------------------------------------------
+st.header("5. 주요 장르별 총 관객 수 분포 (박스플롯)")
+
+# 영화가 10편 이상인 장르 필터링
+genre_counts_series = df["genre"].value_counts()
+major_genres = genre_counts_series[genre_counts_series >= 10].index
+df_major = df[df["genre"].isin(major_genres)]
+
+fig_box = px.box(
+    df_major,
+    x="genre",
+    y="total_audi",
+    color="genre",
+    hover_name="movieNm",
+    points="outliers",  # 이상치(상자 밖 점) 표시
+    title="영화 10편 이상 개봉 장르의 총 관객 수 분포",
+    labels={"genre": "장르", "total_audi": "총 관객 수"},
+)
+
+# 이상치 및 점에 마우스 오버 시 영화명 표시
+fig_box.update_traces(
+    hovertemplate="<b>%{hovertext}</b><br>총 관객 수: %{y:,.0f}명<extra></extra>"
+)
+
+st.plotly_chart(fig_box, use_container_width=True)
+
+st.subheader("💡 이 그래프로 알 수 있는 것")
+st.write(
+    "장르별 관객 수의 중간값과 분포 범위를 비교할 수 있으며, 상자 밖의 이상치 점을 통해 동일 장르 내에서 평균을 크게 상회하는 대형 흥행작을 식별할 수 있습니다."
 )
 
 st.divider()
