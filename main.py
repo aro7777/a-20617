@@ -515,3 +515,27 @@ st.write(
 )
 
 st.divider()
+
+# ---------------------------------------------------------
+# Section 7: 제작 국가 및 장르별 영화 편수 (선버스트)
+# ---------------------------------------------------------
+st.header("7. 제작 국가 및 장르별 영화 편수 분포 (선버스트)")
+
+fig_sunburst = px.sunburst(
+    df,
+    path=["nation", "genre"],
+    title="제작 국가 및 장르별 영화 편수",
+)
+
+fig_sunburst.update_traces(
+    hovertemplate="<b>%{label}</b><br>영화 수: %{value}편<extra></extra>"
+)
+
+st.plotly_chart(fig_sunburst, use_container_width=True)
+
+st.subheader("💡 이 그래프로 알 수 있는 것")
+st.write(
+    "영화 제작 국가별 전체 비중과 각 국가 내에서 어떤 장르의 영화가 주로 제작·개봉되었는지 계층적 구조로 파악할 수 있습니다."
+)
+
+st.divider()
