@@ -319,6 +319,15 @@ def load_data():
     df["genre"] = (
         df["genre"].astype(str).apply(lambda x: x.split("|")[0] if x else x)
     )
+    # 장르별 10위권 체류일수 순위 및 라벨 생성 (예: '1위: 파묘')
+    df["rank_in_genre"] = (
+        df.groupby("genre")["days_in_top10"]
+        .rank(ascending=False, method="min")
+        .astype(int)
+    )
+    df["rank_label"] = (
+        df["rank_in_genre"].astype(str) + "위: " + df["movieNm"]
+    )
     return df
 
 
@@ -545,20 +554,20 @@ st.header("8. 10위권에 오래 남은 영화는 어떤 장르가 많은가")
 
 fig_sunburst2 = px.sunburst(
     df,
-    path=["genre", "days_in_top10"],
+    path=["genre", "rank_label"],
     values="days_in_top10",
     title="10위권에 오래 남은 영화는 어떤 장르가 많은가",
 )
 
 fig_sunburst2.update_traces(
-    hovertemplate="<b>%{label}</b><br>10위권 머문 날수 합계: %{value}일<extra></extra>"
+    hovertemplate="<b>%{label}</b><br>10위권 머문 날수: %{value}일<extra></extra>"
 )
 
 st.plotly_chart(fig_sunburst2, use_container_width=True)
 
 st.subheader("💡 이 그래프로 알 수 있는 것")
 st.write(
-    "장르별로 10위권 내에 머문 누적 일수의 총합과 계층적 분포를 비교함으로써, 어떤 장르가 박스오피스 상위권에서 장기 흥행을 지속하는 경향이 높은지 파악할 수 있습니다."
+    "각 장르 내부에서 10위권 체류일수 순위(1위: 영화명, 2위: 영화명…)와 함께 각 영화가 며칠 동안 10위권에 머물렀는지를 조각의 크기와 라벨로 한눈에 확인할 수 있습니다."
 )
 
 st.divider()
