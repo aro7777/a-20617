@@ -398,7 +398,6 @@ fig_hist.update_traces(
 
 st.plotly_chart(fig_hist, use_container_width=True)
 
-# 최고 관객 수 영화 및 구간별 밀집 정보 계산
 max_movie = df.loc[df["total_audi"].idxmax()]
 max_movie_name = max_movie["movieNm"]
 max_movie_audi = max_movie["total_audi"]
@@ -451,7 +450,6 @@ st.divider()
 # ---------------------------------------------------------
 st.header("5. 주요 장르별 총 관객 수 분포 (박스플롯)")
 
-# 영화가 10편 이상인 장르 필터링
 genre_counts_series = df["genre"].value_counts()
 major_genres = genre_counts_series[genre_counts_series >= 10].index
 df_major = df[df["genre"].isin(major_genres)]
@@ -521,21 +519,46 @@ st.divider()
 # ---------------------------------------------------------
 st.header("7. 제작 국가 및 장르별 영화 편수 분포 (선버스트)")
 
-fig_sunburst = px.sunburst(
+fig_sunburst1 = px.sunburst(
     df,
     path=["nation", "genre"],
     title="제작 국가 및 장르별 영화 편수",
 )
 
-fig_sunburst.update_traces(
+fig_sunburst1.update_traces(
     hovertemplate="<b>%{label}</b><br>영화 수: %{value}편<extra></extra>"
 )
 
-st.plotly_chart(fig_sunburst, use_container_width=True)
+st.plotly_chart(fig_sunburst1, use_container_width=True)
 
 st.subheader("💡 이 그래프로 알 수 있는 것")
 st.write(
     "영화 제작 국가별 전체 비중과 각 국가 내에서 어떤 장르의 영화가 주로 제작·개봉되었는지 계층적 구조로 파악할 수 있습니다."
+)
+
+st.divider()
+
+# ---------------------------------------------------------
+# Section 8: 10위권에 오래 남은 영화 장르 (선버스트)
+# ---------------------------------------------------------
+st.header("8. 10위권에 오래 남은 영화는 어떤 장르가 많은가")
+
+fig_sunburst2 = px.sunburst(
+    df,
+    path=["genre", "days_in_top10"],
+    values="days_in_top10",
+    title="10위권에 오래 남은 영화는 어떤 장르가 많은가",
+)
+
+fig_sunburst2.update_traces(
+    hovertemplate="<b>%{label}</b><br>10위권 머문 날수 합계: %{value}일<extra></extra>"
+)
+
+st.plotly_chart(fig_sunburst2, use_container_width=True)
+
+st.subheader("💡 이 그래프로 알 수 있는 것")
+st.write(
+    "장르별로 10위권 내에 머문 누적 일수의 총합과 계층적 분포를 비교함으로써, 어떤 장르가 박스오피스 상위권에서 장기 흥행을 지속하는 경향이 높은지 파악할 수 있습니다."
 )
 
 st.divider()
