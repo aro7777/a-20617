@@ -462,12 +462,11 @@ fig_box = px.box(
     y="total_audi",
     color="genre",
     hover_name="movieNm",
-    points="outliers",  # 이상치(상자 밖 점) 표시
+    points="outliers",
     title="영화 10편 이상 개봉 장르의 총 관객 수 분포",
     labels={"genre": "장르", "total_audi": "총 관객 수"},
 )
 
-# 이상치 및 점에 마우스 오버 시 영화명 표시
 fig_box.update_traces(
     hovertemplate="<b>%{hovertext}</b><br>총 관객 수: %{y:,.0f}명<extra></extra>"
 )
@@ -477,6 +476,42 @@ st.plotly_chart(fig_box, use_container_width=True)
 st.subheader("💡 이 그래프로 알 수 있는 것")
 st.write(
     "장르별 관객 수의 중간값과 분포 범위를 비교할 수 있으며, 상자 밖의 이상치 점을 통해 동일 장르 내에서 평균을 크게 상회하는 대형 흥행작을 식별할 수 있습니다."
+)
+
+st.divider()
+
+# ---------------------------------------------------------
+# Section 6: 스크린 수, 첫 주 관객, 총 관객 수의 관계 (버블 차트)
+# ---------------------------------------------------------
+st.header("6. 개봉일 스크린 수, 첫 주 관객 수, 총 관객 수의 관계 (버블 차트)")
+
+fig_bubble = px.scatter(
+    df,
+    x="first_scrn",
+    y="total_audi",
+    size="first_week_audi",
+    color="genre",
+    hover_name="movieNm",
+    custom_data=["first_week_audi"],
+    size_max=40,
+    labels={
+        "first_scrn": "개봉일 스크린 수",
+        "total_audi": "총 관객 수",
+        "first_week_audi": "첫 주 관객 수",
+        "genre": "장르",
+    },
+    title="개봉일 스크린 수 vs 총 관객 수 (버블 크기: 개봉 첫 주 관객 수)",
+)
+
+fig_bubble.update_traces(
+    hovertemplate="<b>%{hovertext}</b><br>개봉일 스크린 수: %{x:,.0f}개<br>총 관객 수: %{y:,.0f}명<br>첫 주 관객 수: %{customdata[0]:,.0f}명<extra></extra>"
+)
+
+st.plotly_chart(fig_bubble, use_container_width=True)
+
+st.subheader("💡 이 그래프로 알 수 있는 것")
+st.write(
+    "개봉일 스크린 수와 총 관객 수의 상관관계뿐만 아니라, 원의 크기(첫 주 관객 수)를 통해 개봉 초기의 흥행 화력 및 기세가 최종 성적에 미친 영향을 다차원적으로 파악할 수 있습니다."
 )
 
 st.divider()
