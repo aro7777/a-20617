@@ -548,15 +548,18 @@ st.write(
 st.divider()
 
 # ---------------------------------------------------------
-# Section 8: 10위권에 오래 남은 영화 장르 (선버스트)
+# Section 8: 장르별 10위권 체류일수 Top 10 영화 분포 (선버스트)
 # ---------------------------------------------------------
 st.header("8. 10위권에 오래 남은 영화는 어떤 장르가 많은가")
 
+# 장르 내부 체류일수 순위가 1위~10위인 영화만 필터링
+df_top10_in_genre = df[df["rank_in_genre"] <= 10]
+
 fig_sunburst2 = px.sunburst(
-    df,
+    df_top10_in_genre,
     path=["genre", "rank_label"],
     values="days_in_top10",
-    title="10위권에 오래 남은 영화는 어떤 장르가 많은가",
+    title="장르별 10위권 체류일수 상위 10개(1~10위) 영화 분포",
 )
 
 fig_sunburst2.update_traces(
@@ -567,7 +570,7 @@ st.plotly_chart(fig_sunburst2, use_container_width=True)
 
 st.subheader("💡 이 그래프로 알 수 있는 것")
 st.write(
-    "각 장르 내부에서 10위권 체류일수 순위(1위: 영화명, 2위: 영화명…)와 함께 각 영화가 며칠 동안 10위권에 머물렀는지를 조각의 크기와 라벨로 한눈에 확인할 수 있습니다."
+    "각 장르 내부에서 10위권 체류일수가 가장 높은 상위 10개 영화(1위~10위)의 체류일수와 장르별 비중을 복잡한 차트 없이 깔끔하게 한눈에 확인할 수 있습니다."
 )
 
 st.divider()
